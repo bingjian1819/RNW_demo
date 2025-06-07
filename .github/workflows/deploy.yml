@@ -45,7 +45,7 @@ jobs:
         run: pnpm add -g expo-cli
 
       - name: Build Web
-        run: pnpm expo export:web
+        run: pnpm expo export
         env:
           CI: false
 
