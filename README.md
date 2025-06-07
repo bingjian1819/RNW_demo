@@ -4,46 +4,20 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
 
 ## Get started
 
-1. Install dependencies
-
-   ```bash
-   pnpm install
-   ```
-
+1. Install dependencies `bash pnpm install `
 2. Run the app
-
-   1. Web
-
-   ```bash
-   pnpm run web
-   ```
-
-   2. iOS
-
-   ```bash
-   pnpm run ios
-   ```
-
-   3. android
-
-   ```bash
-   pnpm run android
-   ```
+   1. Web `bash pnpm run web `
+   2. iOS `bash pnpm run ios `
+   3. Android `bash pnpm run android `
 
 ## Build the app
 
-    ```bash
-
-pnpm run build
-
-````
+`bash pnpm run build `
 
 ## Deploy the app
 
-```bash
-pnpm run deploy
-````
+`bash pnpm run deploy `
 
 ## Node
 
-If you push the code directly to the master branch, **pnpm run build** and **pnpm run deploy** will also be executed..
+If you push the code directly to the master branch, **pnpm run build** and **pnpm run deploy** will also be executed.
