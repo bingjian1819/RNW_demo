@@ -4,9 +4,9 @@ import { Input, InputField } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import { useShowToast } from "@/components/ui/toast/useShowToast";
 import * as ed25519 from "@noble/ed25519";
-import Clipboard from "@react-native-clipboard/clipboard";
+import * as Clipboard from "expo-clipboard";
 import React, { useState } from "react";
-import { Pressable, ScrollView } from "react-native";
+import { Platform, Pressable, SafeAreaView, ScrollView } from "react-native";
 
 const Section = ({
   title,
@@ -15,7 +15,11 @@ const Section = ({
   title: string;
   children: React.ReactNode;
 }) => (
-  <Box className="mb-6 p-6 bg-white rounded-2xl shadow-md w-full max-w-xl mx-auto">
+  <Box
+    className={`mb-6 p-6 bg-white rounded-2xl w-full max-w-xl mx-auto ${
+      Platform.OS === "ios" ? "shadow-sm" : "shadow-md"
+    }`}
+  >
     <Text className="text-2xl font-bold mb-4 text-gray-800">{title}</Text>
     {children}
   </Box>
@@ -77,14 +81,21 @@ const SignVerifyDemo = () => {
   const [isValid, setIsValid] = useState<boolean | null>(null);
 
   const handleCopy = (value: string) => {
-    Clipboard.setString(value);
+    Clipboard.setStringAsync(value);
     showToast("Copied to clipboard", "success");
+  };
+
+  // Generate key pair
+  const generateKeyPair = () => {
+    const privateKeyBytes = ed25519.utils.randomPrivateKey();
+    const publicKeyBytes = ed25519.getPublicKey(privateKeyBytes);
+    return { privateKeyBytes, publicKeyBytes };
   };
 
   // Hash and sign message
   const handleSign = async () => {
     try {
-      const { privateKeyBytes, publicKeyBytes } = await generateKeyPair();
+      const { privateKeyBytes, publicKeyBytes } = generateKeyPair();
       if (!message || !privateKeyBytes) return;
       setPublicKey(btoa(String.fromCharCode(...publicKeyBytes)));
 
@@ -110,13 +121,6 @@ const SignVerifyDemo = () => {
         showToast("Failed to sign message");
       }
     }
-  };
-
-  // Generate key pair
-  const generateKeyPair = async () => {
-    const privateKeyBytes = ed25519.utils.randomPrivateKey();
-    const publicKeyBytes = await ed25519.getPublicKeyAsync(privateKeyBytes);
-    return { privateKeyBytes, publicKeyBytes };
   };
 
   // Verify signature
@@ -146,72 +150,76 @@ const SignVerifyDemo = () => {
   };
 
   return (
-    <ScrollView className="flex-1 bg-gray-100 py-8 px-2">
-      <Section title="Sign Message">
-        <Input className="mb-3">
-          <InputField
-            multiline
-            placeholder="Enter message to sign"
-            value={message}
-            onChangeText={setMessage}
+    <SafeAreaView className="flex-1 bg-gray-100">
+      <ScrollView className="flex-1 px-2">
+        <Section title="Sign Message">
+          <Input className="mb-3">
+            <InputField
+              className="pt-2"
+              multiline
+              placeholder="Enter message to sign"
+              value={message}
+              onChangeText={setMessage}
+            />
+          </Input>
+          <Button
+            onPress={handleSign}
+            className="mb-3 h-12 rounded-lg text-white text-base font-semibold"
+          >
+            <ButtonText>Hash & Sign</ButtonText>
+          </Button>
+          <ResultsSection
+            hash={hash}
+            signature={signature}
+            publicKey={publicKey}
+            onCopy={handleCopy}
           />
-        </Input>
-        <Button
-          onPress={handleSign}
-          className="mb-3 h-12 rounded-lg text-white text-base font-semibold"
-        >
-          <ButtonText>Hash & Sign</ButtonText>
-        </Button>
-        <ResultsSection
-          hash={hash}
-          signature={signature}
-          publicKey={publicKey}
-          onCopy={handleCopy}
-        />
-      </Section>
+        </Section>
 
-      <Section title="Verify Signature">
-        <Input className="mb-3 ">
-          <InputField
-            multiline
-            placeholder="Enter message to verify"
-            value={verifyMessage}
-            onChangeText={setVerifyMessage}
-          />
-        </Input>
-        <Input className="mb-3">
-          <InputField
-            placeholder="Enter public key (base64)"
-            value={verifyPublicKey}
-            onChangeText={setVerifyPublicKey}
-          />
-        </Input>
-        <Input className="mb-3">
-          <InputField
-            placeholder="Enter signature (base64)"
-            value={verifySignature}
-            onChangeText={setVerifySignature}
-          />
-        </Input>
-        <Button
-          onPress={handleVerify}
-          className="mb-3 h-12 rounded-lg text-white text-base font-semibold"
-        >
-          <ButtonText>Verify</ButtonText>
-        </Button>
-        {isValid !== null && (
-          <Box className="mt-3 rounded-lg bg-white">
-            <Text
-              className={`text-lg font-semibold text-center ${
-                isValid ? "text-green-600" : "text-red-600"
-              }`}
-            >
-              {isValid ? "✓ Signature is Valid" : "✗ Signature is Invalid"}
-            </Text>
-          </Box>
-        )}
-      </Section>
-    </ScrollView>
+        <Section title="Verify Signature">
+          <Input className="mb-3 ">
+            <InputField
+              className="pt-2"
+              multiline
+              placeholder="Enter message to verify"
+              value={verifyMessage}
+              onChangeText={setVerifyMessage}
+            />
+          </Input>
+          <Input className="mb-3">
+            <InputField
+              placeholder="Enter public key (base64)"
+              value={verifyPublicKey}
+              onChangeText={setVerifyPublicKey}
+            />
+          </Input>
+          <Input className="mb-3">
+            <InputField
+              placeholder="Enter signature (base64)"
+              value={verifySignature}
+              onChangeText={setVerifySignature}
+            />
+          </Input>
+          <Button
+            onPress={handleVerify}
+            className="mb-3 h-12 rounded-lg text-white text-base font-semibold"
+          >
+            <ButtonText>Verify</ButtonText>
+          </Button>
+          {isValid !== null && (
+            <Box className="mt-3 rounded-lg bg-white">
+              <Text
+                className={`text-lg font-semibold text-center ${
+                  isValid ? "text-green-600" : "text-red-600"
+                }`}
+              >
+                {isValid ? "✓ Signature is Valid" : "✗ Signature is Invalid"}
+              </Text>
+            </Box>
+          )}
+        </Section>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 
