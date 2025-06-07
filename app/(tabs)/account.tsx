@@ -1,8 +1,8 @@
 import { Text } from "@/components/ui/text";
 import { StyleSheet } from "react-native";
 
-export default function ExploreScreen() {
-  return <Text style={styles.title}>Explore</Text>;
+export default function AccountScreen() {
+  return <Text style={styles.title}>Account</Text>;
 }
 
 const styles = StyleSheet.create({

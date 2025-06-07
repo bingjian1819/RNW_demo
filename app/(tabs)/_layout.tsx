@@ -1,12 +1,38 @@
-import { Tabs } from "expo-router";
-import React from "react";
-import { Platform } from "react-native";
-
-import { HapticTab } from "@/components/HapticTab";
-import { IconSymbol } from "@/components/ui/IconSymbol";
-import TabBarBackground from "@/components/ui/TabBarBackground";
+import {
+  AddIcon,
+  CalendarDaysIcon,
+  GlobeIcon,
+  Icon,
+  MailIcon,
+} from "@/components/ui/icon";
 import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
+import { Tabs } from "expo-router";
+import React from "react";
+import { Platform, Text } from "react-native";
+
+const tabRoutes = [
+  {
+    name: "profile",
+    title: "Earn",
+    icon: CalendarDaysIcon,
+  },
+  {
+    name: "send",
+    title: "Send",
+    icon: MailIcon,
+  },
+  {
+    name: "spend",
+    title: "Spend",
+    icon: AddIcon,
+  },
+  {
+    name: "account",
+    title: "Account",
+    icon: GlobeIcon,
+  },
+];
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
@@ -16,25 +42,43 @@ export default function TabLayout() {
       screenOptions={{
         tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
         headerShown: false,
-        tabBarButton: HapticTab,
-        tabBarBackground: TabBarBackground,
         tabBarStyle: Platform.select({
           ios: {
             position: "absolute",
+            height: 60,
+            backgroundColor: "#fff",
           },
-          default: {},
+          default: {
+            height: 60,
+            backgroundColor: "#fff",
+          },
         }),
       }}
     >
-      <Tabs.Screen
-        name="profile"
-        options={{
-          title: "Profile",
-          tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name="house.fill" color={color} />
-          ),
-        }}
-      />
+      {tabRoutes.map((route) => (
+        <Tabs.Screen
+          key={route.name}
+          name={route.name}
+          options={{
+            title: route.title,
+            tabBarLabel: ({ focused }) => (
+              <Text
+                className={focused ? "text-blue-600" : "text-gray-400"}
+                style={{ fontSize: 12 }}
+              >
+                {route.title}
+              </Text>
+            ),
+            tabBarIcon: ({ focused }) => (
+              <Icon
+                as={route.icon}
+                size="xl"
+                className={focused ? "text-blue-600" : "text-gray-400"}
+              />
+            ),
+          }}
+        />
+      ))}
     </Tabs>
   );
 }
