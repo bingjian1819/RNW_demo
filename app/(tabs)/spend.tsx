@@ -1,13 +1,10 @@
+import { Box } from "@/components/ui/box";
 import { Text } from "@/components/ui/text";
-import { StyleSheet } from "react-native";
 
 export default function SpendScreen() {
-  return <Text style={styles.title}>Spend</Text>;
+  return (
+    <Box className="flex-1 items-center justify-center">
+      <Text className="text-2xl font-bold">Spend</Text>
+    </Box>
+  );
 }
-
-const styles = StyleSheet.create({
-  title: {
-    fontSize: 20,
-    fontWeight: "bold",
-  },
-});

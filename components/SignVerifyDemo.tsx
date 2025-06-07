@@ -1,12 +1,22 @@
 import { Box } from "@/components/ui/box";
 import { Button, ButtonText } from "@/components/ui/button";
 import { Input, InputField } from "@/components/ui/input";
+
 import { Text } from "@/components/ui/text";
 import { useShowToast } from "@/components/ui/toast/useShowToast";
 import * as ed25519 from "@noble/ed25519";
+import { sha512 } from "@noble/hashes/sha512";
 import * as Clipboard from "expo-clipboard";
+import * as Crypto from "expo-crypto";
 import React, { useState } from "react";
-import { Platform, Pressable, SafeAreaView, ScrollView } from "react-native";
+import { KeyboardAvoidingView, Platform, Pressable } from "react-native";
+import "react-native-get-random-values";
+
+ed25519.etc.sha512Sync = (...m: Uint8Array[]) =>
+  sha512(ed25519.etc.concatBytes(...m));
+
+ed25519.etc.sha512Async = (...m: Uint8Array[]) =>
+  Promise.resolve(ed25519.etc.sha512Sync(...m));
 
 const Section = ({
   title,
@@ -86,31 +96,31 @@ const SignVerifyDemo = () => {
   };
 
   // Generate key pair
-  const generateKeyPair = () => {
+  const generateKeyPair = async () => {
     const privateKeyBytes = ed25519.utils.randomPrivateKey();
-    const publicKeyBytes = ed25519.getPublicKey(privateKeyBytes);
+    const publicKeyBytes = await ed25519.getPublicKeyAsync(privateKeyBytes);
     return { privateKeyBytes, publicKeyBytes };
   };
 
   // Hash and sign message
   const handleSign = async () => {
     try {
-      const { privateKeyBytes, publicKeyBytes } = generateKeyPair();
-      if (!message || !privateKeyBytes) return;
+      const { privateKeyBytes, publicKeyBytes } = await generateKeyPair();
+      if (!message || !privateKeyBytes) {
+        showToast("Please fill in the message");
+        return;
+      }
       setPublicKey(btoa(String.fromCharCode(...publicKeyBytes)));
 
       // Calculate SHA-256 hash
-      const msgBuffer = new TextEncoder().encode(message);
-      const hashBuffer = await crypto.subtle.digest("SHA-256", msgBuffer);
-      const hashArray = Array.from(new Uint8Array(hashBuffer));
-      const hashHex = hashArray
-        .map((b) => b.toString(16).padStart(2, "0"))
-        .join("");
-      setHash(hashHex);
-
+      const hashMessage = await Crypto.digestStringAsync(
+        Crypto.CryptoDigestAlgorithm.SHA256,
+        message
+      );
+      setHash(hashMessage);
       // Sign the message
       const signatureBytes = await ed25519.signAsync(
-        msgBuffer,
+        hashMessage,
         privateKeyBytes
       );
       setSignature(btoa(String.fromCharCode(...signatureBytes)));
@@ -130,7 +140,10 @@ const SignVerifyDemo = () => {
       return;
     }
     try {
-      const msgBuffer = new TextEncoder().encode(verifyMessage);
+      const hashMessage = await Crypto.digestStringAsync(
+        Crypto.CryptoDigestAlgorithm.SHA256,
+        verifyMessage
+      );
       const publicKeyBytes = Uint8Array.from(atob(verifyPublicKey), (c) =>
         c.charCodeAt(0)
       );
@@ -139,7 +152,7 @@ const SignVerifyDemo = () => {
       );
       const valid = await ed25519.verifyAsync(
         signatureBytes,
-        msgBuffer,
+        hashMessage,
         publicKeyBytes
       );
       setIsValid(valid);
@@ -150,76 +163,74 @@ const SignVerifyDemo = () => {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-100">
-      <ScrollView className="flex-1 px-2">
-        <Section title="Sign Message">
-          <Input className="mb-3">
-            <InputField
-              className="pt-2"
-              multiline
-              placeholder="Enter message to sign"
-              value={message}
-              onChangeText={setMessage}
-            />
-          </Input>
-          <Button
-            onPress={handleSign}
-            className="mb-3 h-12 rounded-lg text-white text-base font-semibold"
-          >
-            <ButtonText>Hash & Sign</ButtonText>
-          </Button>
-          <ResultsSection
-            hash={hash}
-            signature={signature}
-            publicKey={publicKey}
-            onCopy={handleCopy}
+    <KeyboardAvoidingView behavior={"padding"} className="flex-1">
+      <Section title="Sign Message">
+        <Input className="mb-3">
+          <InputField
+            className="pt-2"
+            multiline
+            placeholder="Enter message to sign"
+            value={message}
+            onChangeText={setMessage}
           />
-        </Section>
+        </Input>
+        <Button
+          onPress={handleSign}
+          className="mb-3 h-12 rounded-lg text-white text-base font-semibold"
+        >
+          <ButtonText>Hash & Sign</ButtonText>
+        </Button>
+        <ResultsSection
+          hash={hash}
+          signature={signature}
+          publicKey={publicKey}
+          onCopy={handleCopy}
+        />
+      </Section>
 
-        <Section title="Verify Signature">
-          <Input className="mb-3 ">
-            <InputField
-              className="pt-2"
-              multiline
-              placeholder="Enter message to verify"
-              value={verifyMessage}
-              onChangeText={setVerifyMessage}
-            />
-          </Input>
-          <Input className="mb-3">
-            <InputField
-              placeholder="Enter public key (base64)"
-              value={verifyPublicKey}
-              onChangeText={setVerifyPublicKey}
-            />
-          </Input>
-          <Input className="mb-3">
-            <InputField
-              placeholder="Enter signature (base64)"
-              value={verifySignature}
-              onChangeText={setVerifySignature}
-            />
-          </Input>
-          <Button
-            onPress={handleVerify}
-            className="mb-3 h-12 rounded-lg text-white text-base font-semibold"
-          >
-            <ButtonText>Verify</ButtonText>
-          </Button>
-          {isValid !== null && (
-            <Box className="mt-3 rounded-lg bg-white">
-              <Text
-                className={`text-lg font-semibold text-center ${
-                  isValid ? "text-green-600" : "text-red-600"
-                }`}
-              >
-                {isValid ? "✓ Signature is Valid" : "✗ Signature is Invalid"}
-              </Text>
-            </Box>
-          )}
-        </Section>
-      </ScrollView>
-    </SafeAreaView>
+      <Section title="Verify Signature">
+        <Input className="mb-3 ">
+          <InputField
+            className="pt-2"
+            multiline
+            placeholder="Enter message to verify"
+            value={verifyMessage}
+            onChangeText={setVerifyMessage}
+          />
+        </Input>
+        <Input className="mb-3">
+          <InputField
+            placeholder="Enter public key (base64)"
+            value={verifyPublicKey}
+            onChangeText={setVerifyPublicKey}
+          />
+        </Input>
+        <Input className="mb-3">
+          <InputField
+            placeholder="Enter signature (base64)"
+            value={verifySignature}
+            onChangeText={setVerifySignature}
+          />
+        </Input>
+        <Button
+          onPress={handleVerify}
+          className="mb-3 h-12 rounded-lg text-white text-base font-semibold"
+        >
+          <ButtonText>Verify</ButtonText>
+        </Button>
+        {isValid !== null && (
+          <Box className="mt-3 rounded-lg bg-white">
+            <Text
+              className={`text-lg font-semibold text-center ${
+                isValid ? "text-green-600" : "text-red-600"
+              }`}
+            >
+              {isValid ? "✓ Signature is Valid" : "✗ Signature is Invalid"}
+            </Text>
+          </Box>
+        )}
+      </Section>
+    </KeyboardAvoidingView>
   );
 };
 

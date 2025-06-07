@@ -11,7 +11,7 @@ import type { MotionComponentProps } from "@legendapp/motion";
 import { Motion } from "@legendapp/motion";
 import { LinearGradient } from "expo-linear-gradient";
 import React from "react";
-import { Image, Pressable, ScrollView, View } from "react-native";
+import { Image, Platform, Pressable, ScrollView, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const logo = require("../../assets/images/icon.png");
@@ -79,8 +79,6 @@ export default function ProfileScreen() {
       style={{
         flex: 1,
         backgroundColor: "#f7f6f1",
-        paddingTop: insets.top,
-        paddingBottom: insets.bottom,
       }}
     >
       <ScrollView
@@ -94,6 +92,7 @@ export default function ProfileScreen() {
           end={{ x: 1, y: 1 }}
           style={{
             padding: 16,
+            paddingTop: Platform.OS === "web" ? 16 : insets.top,
           }}
         >
           <HStack className="justify-between items-center mb-2">
@@ -190,7 +189,7 @@ export default function ProfileScreen() {
               See All
             </Text>
           </HStack>
-          <HStack className="space-x-3">
+          <HStack space="md">
             {comingSoon.map((item, idx) => (
               <Box
                 key={idx}

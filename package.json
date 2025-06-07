@@ -11,8 +11,7 @@
     "web": "DARK_MODE=media expo start --web",
     "lint": "expo lint",
     "build": "expo export -p web",
-    "deploy": "gh-pages --nojekyll -d dist",
-    "predeploy": "expo export -p web"
+    "deploy": "gh-pages --nojekyll -d dist"
   },
   "dependencies": {
     "@expo/vector-icons": "^14.1.0",
@@ -51,6 +50,7 @@
     "react-native": "0.79.3",
     "react-native-css-interop": "^0.1.22",
     "react-native-gesture-handler": "~2.24.0",
+    "react-native-get-random-values": "^1.11.0",
     "react-native-reanimated": "~3.17.5",
     "react-native-safe-area-context": "5.4.0",
     "react-native-screens": "~4.11.1",
