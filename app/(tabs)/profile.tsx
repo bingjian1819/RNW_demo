@@ -20,7 +20,7 @@ const TemplateImage = () => {
   return (
     <Image
       source={require("../../assets/images/react-logo.png")}
-      style={{ width: 54, height: 54, borderRadius: 16 }}
+      style={{ width: 42, height: 42, borderRadius: 16 }}
       resizeMode="cover"
     />
   );
@@ -172,12 +172,12 @@ export default function ProfileScreen() {
             >
               {item.icon}
               <Box className="flex-1 ml-1.5">
-                <Text className="text-black mb-2">{item.title}</Text>
+                <Text className="text-black mb-1.5">{item.title}</Text>
                 <Text size="xs" className="text-gray-500">
                   {item.desc}
                 </Text>
               </Box>
-              <Box className="bg-gray-100 rounded-full px-2 py-1 ml-1">
+              <Box className="bg-gray-100 rounded-full px-2 py-1 ml-2">
                 <Text size="xs">{item.rate}</Text>
               </Box>
             </HStack>
@@ -197,7 +197,7 @@ export default function ProfileScreen() {
                 className="items-center flex-1 bg-white rounded-xl justify-center p-2"
               >
                 {item.icon}
-                <Text size="sm" className="mt-2 text-black text-center">
+                <Text size="sm" className="mt-1 text-black text-center">
                   {item.label}
                 </Text>
               </Box>

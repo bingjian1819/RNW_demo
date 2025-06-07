@@ -2,6 +2,7 @@
   "name": "rnw_demo",
   "main": "expo-router/entry",
   "version": "1.0.0",
+  "homepage": "https://bingjian1819.github.io/RNW_demo",
   "scripts": {
     "start": "expo start",
     "reset-project": "node ./scripts/reset-project.js",
