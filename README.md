@@ -1,23 +1,32 @@
-# Welcome to your Expo app 👋
+# RNW_demo - React Native Web Demo
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A cross-platform application demo built with Expo and React Native Web, supporting Web, iOS, and Android platforms.
 
-## Get started
+## Tech Stack
 
-1. Install dependencies `bash pnpm install `
-2. Run the app
-   1. Web `bash pnpm run web `
-   2. iOS `bash pnpm run ios `
-   3. Android `bash pnpm run android `
+- [Expo](https://expo.dev) - React Native development framework
+- [React Native Web](https://necolas.github.io/react-native-web/) - React Native for Web
+- [NativeWind](https://www.nativewind.dev/) - Tailwind CSS for React Native
+- [Expo Router](https://docs.expo.dev/router/introduction/) - File-based routing
+- [GlueStack UI](https://ui.gluestack.io/) - Cross-platform UI components
+- [TypeScript](https://www.typescriptlang.org/) - Type-safe JavaScript
 
-## Build the app
+## Getting Started
 
-`bash pnpm run build `
+1. Install dependencies
 
-## Deploy the app
+   ```bash
+   pnpm install
+   ```
 
-`bash pnpm run deploy `
+2. Run the application
+   - Web: `pnpm run web`
+   - iOS: `pnpm run ios`
+   - Android: `pnpm run android`
 
-## Node
+## Build and Deploy to GitHub Pages
 
-If you push the code directly to the master branch, **pnpm run build** and **pnpm run deploy** will also be executed.
+- Build: `pnpm run build`
+- Deploy: `pnpm run deploy`
+
+> Note: Build and deploy commands will be executed automatically when code is pushed to the master branch.
